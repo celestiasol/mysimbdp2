@@ -1,0 +1,4 @@
+kafka-python
+pymongo
+requests
+python-json-logger

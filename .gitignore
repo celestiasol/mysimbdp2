@@ -1,0 +1,24 @@
+# credentials
+gcp/credentials/*.json
+
+# Conda environments
+.env/
+.envs/
+venv/
+.venv/
+conda-env/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Mongo data
+.mongo/
+
+# Docker
+*.log
+
+commands.sh
+
+.DS_Store

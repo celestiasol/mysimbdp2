@@ -1,0 +1,1 @@
+This is where the credentials for service account to connect to GCP service stored

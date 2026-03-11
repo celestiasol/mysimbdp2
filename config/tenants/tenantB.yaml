@@ -1,0 +1,23 @@
+tenant_id: tenantB
+
+worker_script: tenant_worker.py
+pipeline_script: tenantB_pipeline.py
+
+streaming:
+  topic: tenantB-bronze
+  max_processing_time_seconds: 5
+  max_messages_per_minute: 100
+
+batch:
+  schedule: "0 * * * *"   # every hour
+  max_data_per_run_mb: 20
+
+storage:
+  type: local
+  caching_dir: /tmp/tenantB/
+
+sla:
+  max_runs_per_hour: 2
+  max_execution_time_seconds: 60
+  priority: low
+  max_storage_mb: 500

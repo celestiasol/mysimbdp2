@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+
+  # ---------------------------
+  # MongoDB (mysimbdp-coredms)
+  # ---------------------------
+  mongodb:
+    image: mongo:6
+    container_name: mysimbdp-coredms
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./coredms/init.js:/docker-entrypoint-initdb.d/init.js
+      - mongo_data:/data/db
+
+  # ---------------------------
+  # Zookeeper (Kafka dependency)
+  # ---------------------------
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+
+  # ---------------------------
+  # Kafka (mysimbdp-messagingsystem)
+  # ---------------------------
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+  # ---------------------------
+  # Streaming Ingest Manager
+  # ---------------------------
+  streaming-manager:
+    build: ./streaming/manager
+    depends_on:
+      - kafka
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+      - ./streaming/workers:/app/workers/
+
+  # ---------------------------
+  # Streaming Monitor
+  # ---------------------------
+  streaming-monitor:
+    build: ./streaming/monitor
+    volumes:
+      - ./logs:/app/logs
+
+  # ---------------------------
+  # Streaming Workers
+  # ---------------------------
+  worker-tenant-a:
+    build: ./streaming/workers
+    command: ["python", "tenant_worker.py", "tenantA", "tenantA-bronze"]
+    depends_on:
+      - kafka
+      - mongodb
+      - streaming-monitor
+    volumes:
+        - ./logs:/app/logs
+
+  worker-tenant-b:
+    build: ./streaming/workers
+    command: ["python", "tenant_worker.py", "tenantB", "tenantB-bronze"]
+    depends_on:
+      - kafka
+      - mongodb
+      - streaming-monitor
+    volumes:
+      - ./logs:/app/logs
+
+  # ---------------------------
+  # Batch Manager (cron inside)
+  # ---------------------------
+  batch-manager:
+    build: ./batch/batchmanager
+    depends_on:
+      - mongodb
+    volumes:
+      - ./config:/app/config
+      - ./batch/silverpipelines:/app/silverpipelines
+      - ./tenant-caching-dir:/app/tenant-caching-dir
+      - ./logs:/app/logs
+      - ./gcp/credentials/gcp-storage-key.json:/app/gcp-storage-key.json
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/gcp-storage-key.json
+
+volumes:
+  mongo_data:

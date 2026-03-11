@@ -1,0 +1,4 @@
+pymongo
+google-cloud-storage
+pandas
+python-json-logger

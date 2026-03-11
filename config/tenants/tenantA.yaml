@@ -1,0 +1,24 @@
+tenant_id: tenantA
+
+worker_script: tenant_worker.py
+pipeline_script: tenantA_pipeline.py
+
+streaming:
+  topic: tenantA-bronze
+  max_processing_time_seconds: 2
+  max_messages_per_minute: 500
+
+batch:
+  schedule: "*/5 * * * *"   # every 5 minutes
+  max_data_per_run_mb: 100
+
+storage:
+  type: gcs
+  bucket_name: mysimbdp-tenant-data
+  caching_dir: tenantA/
+
+sla:
+  max_runs_per_hour: 12
+  max_execution_time_seconds: 120
+  priority: high
+  max_storage_mb: 5000
