@@ -50,6 +50,8 @@ services:
     build: ./streaming/manager
     depends_on:
       - kafka
+    ports:
+      - "5001:5000"
     volumes:
       - ./config:/app/config
       - ./logs:/app/logs
