@@ -1,4 +1,3 @@
 flask
 pymongo
-google-cloud-storage
-python-json-logger
+requests
