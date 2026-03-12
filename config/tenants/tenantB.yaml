@@ -9,7 +9,7 @@ streaming:
   max_messages_per_minute: 100
 
 batch:
-  schedule: "0 * * * *"   # every hour
+  schedule: "*/10 * * * *"   # every 10 mins
   max_data_per_run_mb: 20
 
 storage:
