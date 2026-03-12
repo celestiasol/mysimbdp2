@@ -22,7 +22,7 @@ def upload_to_gcs(data):
     client = storage.Client()
     bucket = client.bucket(BUCKET_NAME)
 
-    blob_path = f"{TENANT_ID}/silver_data/{timestamp}.json"
+    blob_path = f"{TENANT_ID}/caching-dir/{timestamp}.json"
     blob = bucket.blob(blob_path)
 
     blob.upload_from_string(json.dumps(data))
