@@ -6,6 +6,7 @@ db.createCollection("tenantB_bronze")
 db.createCollection("tenantB_silver")
 db.createCollection("batch_logs")
 db.createCollection("ingestion_metrics")
+db.createCollection("streaming_metrics")
 
 db.tenantA_bronze.createIndex({ tenantId: 1 })
 db.tenantA_silver.createIndex({ tenantId: 1 })

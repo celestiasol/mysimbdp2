@@ -51,7 +51,7 @@ services:
     depends_on:
       - kafka
     ports:
-      - "5001:5000"
+      - "5006:5000"
     volumes:
       - ./config:/app/config
       - ./logs:/app/logs
@@ -63,7 +63,7 @@ services:
   streaming-monitor:
     build: ./streaming/monitor
     ports:
-      - "5000:5000"
+      - "5005:5000"
     volumes:
       - ./logs:/app/logs
     depends_on:
